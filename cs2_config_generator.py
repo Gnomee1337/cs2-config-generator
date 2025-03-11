@@ -60,5 +60,5 @@ if __name__ == '__main__':
         os.path.join(base_path, "local", "cfg", "cs2_machine_convars.vcfg"),
         os.path.join(base_path, "remote", "cs2_user_convars.vcfg"),
     ]
-    output_file = os.path.join(os.getcwd(), "testconfig3.cfg")
+    output_file = os.path.join(os.getcwd(), "configs", "testconfig3.cfg")
     generate_autoexec(output_file, vcfg_files, convar_files)
