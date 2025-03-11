@@ -181,6 +181,10 @@ def filter_telemetry_convars(convars: dict) -> dict:
     return {k: v for k, v in convars.items() if k.startswith("cl_hud_telemetry_")}
 
 
+def filter_other_convars(convars: dict, used_keys: set) -> dict:
+    return {k: v for k, v in convars.items() if k not in used_keys}
+
+
 def write_section(outfile, section_title: str, items: dict | list, formatter_func):
     outfile.write(f"// {section_title}\n")
     if isinstance(items, dict):
@@ -292,6 +296,30 @@ def write_telemetry_section(outfile, section_title: str, telemetry_settings: dic
     write_section(outfile, section_title, telemetry_settings, telemetry_formatter)
 
 
+def write_other_settings_section(outfile, section_title: str, other_settings: dict):
+    def other_settings_formatter(key, value):
+        return f'{key} "{value}"'
+
+    write_section(outfile, section_title, other_settings, other_settings_formatter)
+
+
+def combine_other_settings(convars: dict):
+    # Collect all used keys from previous sections
+    used_keys = set()
+    used_keys.update(filter_crosshair_convars(convars).keys())
+    used_keys.update(filter_grenade_crosshair_convars(convars).keys())
+    used_keys.update(filter_mouse_convars(convars).keys())
+    used_keys.update(filter_radar_convars(convars).keys())
+    used_keys.update(filter_viewmodel_convars(convars).keys())
+    used_keys.update(filter_sound_convars(convars).keys())
+    used_keys.update(filter_hud_convars(convars).keys())
+    used_keys.update(filter_damageprediction_convars(convars).keys())
+    used_keys.update(filter_mute_convars(convars).keys())
+    used_keys.update(filter_background_convars(convars).keys())
+    used_keys.update(filter_telemetry_convars(convars).keys())
+    return used_keys
+
+
 def generate_autoexec(output_file: str):
     # Load and merge bindings from vcfg files
     all_bindings = {}
@@ -361,6 +389,9 @@ def generate_autoexec(output_file: str):
         # Telemetry Section
         telemetry_settings = filter_telemetry_convars(all_convars)
         write_telemetry_section(out, "Telemetry", telemetry_settings)
+        # Other settings section
+        other_convars = filter_other_convars(all_convars, combine_other_settings(all_convars))
+        write_other_settings_section(out, "Other settings", other_convars)
     print(f"[✔] autoexec.cfg created at: {output_file}")
 
 
