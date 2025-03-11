@@ -10,6 +10,14 @@ GRENADE_SLOT_MAP = {
 
 MOVEMENT_ACTIONS = {"+jump", "+left", "+right", "+forward", "+back", "+duck", "+sprint"}
 
+MOUSE_SETTINGS_KEYS = {
+    "sensitivity",
+    "zoom_sensitivity_ratio",
+    "m_yaw",
+    "m_pitch",
+    "mouse_inverty"
+}
+
 
 def parse_vcfg_bindings(file_path):
     bindings = {}
@@ -57,7 +65,11 @@ def filter_movement_bindings(bindings):
 
 def filter_grenade_bindings(bindings):
     grenade_slots = set(GRENADE_SLOT_MAP.keys())
-    return {key: value for key, value in bindings.items() if value in grenade_slots}
+    return {k: v for k, v in bindings.items() if v in grenade_slots}
+
+
+def filter_demo_bindings(bindings: dict) -> dict:
+    return {k: v for k, v in bindings.items() if v.startswith("demo_")}
 
 
 def filter_unbind_bindings(bindings: dict) -> list:
@@ -82,6 +94,22 @@ def filter_other_bindings(bindings):
 
 def filter_crosshair_convars(convars: dict) -> dict:
     return {k: v for k, v in convars.items() if k.startswith("cl_crosshair")}
+
+
+def filter_mouse_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k in MOUSE_SETTINGS_KEYS}
+
+
+def filter_radar_convars(convars: dict) -> dict:
+    radar_keys = {}
+    for key, value in convars.items():
+        if key.startswith("cl_radar_") or key.startswith("cl_hud_radar_") or key == "cl_teammate_colors_show":
+            radar_keys[key] = value
+    return radar_keys
+
+
+def filter_viewmodel_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k.startswith("viewmodel_")}
 
 
 def write_section(outfile, section_title: str, items: dict | list, formatter_func):
@@ -125,6 +153,27 @@ def write_crosshair_section(outfile, section_title: str, crosshair_settings: dic
     write_section(outfile, section_title, crosshair_settings, crosshair_formatter)
 
 
+def write_mouse_section(outfile, section_title: str, mouse_settings: dict):
+    def mouse_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, mouse_settings, mouse_formatter)
+
+
+def write_radar_section(outfile, section_title: str, radar_settings: dict):
+    def radar_formatter(key, value):
+        return f"{key} {value}"
+
+    write_section(outfile, section_title, radar_settings, radar_formatter)
+
+
+def write_viewmodel_section(outfile, section_title: str, viewmodel_settings: dict):
+    def viewmodel_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, viewmodel_settings, viewmodel_formatter)
+
+
 def generate_autoexec(output_file: str):
     # Load and merge bindings from vcfg files
     merged_bindings = {}
@@ -146,21 +195,33 @@ def generate_autoexec(output_file: str):
             print(f"[!] Convar file not found: {file}")
     # Open autoconfig.cfg file to write config
     with open(output_file, 'w', encoding='utf-8') as out:
-        # Unbinds section
+        # Unbinds hotkeys section
         unbinds = filter_unbind_bindings(merged_bindings)
         write_unbind_section(out, "Unbinds", unbinds)
-        # Movement section
+        # Movement hotkeys section
         movement = filter_movement_bindings(merged_bindings)
-        write_bind_section(out, "Movements", movement)
-        # Grenades section
+        write_bind_section(out, "Movements binds", movement)
+        # Grenades hotkeys section
         grenades = filter_grenade_bindings(merged_bindings)
-        write_grenade_section(out, "Grenades", grenades)
-        # Other section
+        write_grenade_section(out, "Grenades binds", grenades)
+        # Write Demo hotkeys section
+        demo_binds = filter_demo_bindings(merged_bindings)
+        write_bind_section(out, "Demo hotkeys", demo_binds)
+        # Other hotkeys section
         other_binds = filter_other_bindings(merged_bindings)
-        write_bind_section(out, "Others", other_binds)
+        write_bind_section(out, "Other binds", other_binds)
         # Crosshair section
         crosshair_settings = filter_crosshair_convars(crosshair_convars)
         write_crosshair_section(out, "Crosshair", crosshair_settings)
+        # Mouse Section
+        mouse_settings = filter_mouse_convars(crosshair_convars)
+        write_mouse_section(out, "Mouse", mouse_settings)
+        # Radar Section
+        radar_settings = filter_radar_convars(crosshair_convars)
+        write_radar_section(out, "Radar", radar_settings)
+        # Viewmodel Section
+        viewmodel_settings = filter_viewmodel_convars(crosshair_convars)
+        write_viewmodel_section(out, "Viewmodel", viewmodel_settings)
     print(f"[✔] autoexec.cfg created at: {output_file}")
 
 
