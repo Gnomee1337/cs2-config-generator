@@ -8,14 +8,45 @@ GRENADE_SLOT_MAP = {
     "slot10": "Molotov"
 }
 
-MOVEMENT_ACTIONS = {"+jump", "+left", "+right", "+forward", "+back", "+duck", "+sprint"}
+MOVEMENT_ACTIONS = {
+    "+jump",
+    "+left",
+    "+right",
+    "+forward",
+    "+back",
+    "+duck",
+    "+sprint"
+}
 
-MOUSE_SETTINGS_KEYS = {
+MOUSE_SETTINGS = {
     "sensitivity",
     "zoom_sensitivity_ratio",
     "m_yaw",
     "m_pitch",
     "mouse_inverty"
+}
+
+HUD_SETTINGS = {
+    "cl_hud_color",
+    "cl_showfps",
+    "cl_deathnotices_show_numbers",
+    "cl_teamid_overhead_colors_show",
+    "cl_hide_avatar_images",
+    "cl_teamid_overhead_mode"
+}
+
+MUTE_SETTINGS = {
+    "cl_mute_all_but_friends_and_party",
+    "cl_mute_enemy_team",
+    "cl_player_ping_mute",
+    "cl_sanitize_muted_players",
+    "voice_modenable_toggle"
+}
+
+BACKGROUND_SETTINGS_KEYS = {
+    "ui_mainmenu_bkgnd_movie_9CA40421",
+    "ui_vanitysetting_team",
+    "ui_vanitysetting_loadoutslot_ct"
 }
 
 
@@ -97,7 +128,7 @@ def filter_crosshair_convars(convars: dict) -> dict:
 
 
 def filter_mouse_convars(convars: dict) -> dict:
-    return {k: v for k, v in convars.items() if k in MOUSE_SETTINGS_KEYS}
+    return {k: v for k, v in convars.items() if k in MOUSE_SETTINGS}
 
 
 def filter_radar_convars(convars: dict) -> dict:
@@ -110,6 +141,44 @@ def filter_radar_convars(convars: dict) -> dict:
 
 def filter_viewmodel_convars(convars: dict) -> dict:
     return {k: v for k, v in convars.items() if k.startswith("viewmodel_")}
+
+
+def filter_damageprediction_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k.startswith("cl_predict_")}
+
+
+def filter_sound_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k.startswith("snd_") or k == "volume"}
+
+
+def filter_mute_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k in MUTE_SETTINGS}
+
+
+def filter_grenade_crosshair_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k.startswith("cl_grenadecrosshair")}
+
+
+def filter_background_convars(convars: dict) -> dict:
+    result = {}
+    for base_key in BACKGROUND_SETTINGS_KEYS:
+        for key, value in convars.items():
+            if key.startswith(base_key):  # handles keys like 'ui_mainmenu_bkgnd_movie_9CA40421$11'
+                result[base_key] = value
+    return result
+
+
+def filter_hud_convars(convars: dict) -> dict:
+    result = {}
+    for base_key in HUD_SETTINGS:
+        for key, value in convars.items():
+            if key.startswith(base_key):  # handles keys like 'cl_teamid_overhead_mode$2'
+                result[base_key] = value
+    return result
+
+
+def filter_telemetry_convars(convars: dict) -> dict:
+    return {k: v for k, v in convars.items() if k.startswith("cl_hud_telemetry_")}
 
 
 def write_section(outfile, section_title: str, items: dict | list, formatter_func):
@@ -174,54 +243,124 @@ def write_viewmodel_section(outfile, section_title: str, viewmodel_settings: dic
     write_section(outfile, section_title, viewmodel_settings, viewmodel_formatter)
 
 
+def write_sound_section(outfile, section_title: str, sound_settings: dict):
+    def sound_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, sound_settings, sound_formatter)
+
+
+def write_damage_prediction_section(outfile, section_title: str, damage_prediction_settings: dict):
+    def damage_prediction_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, damage_prediction_settings, damage_prediction_formatter)
+
+
+def write_mute_section(outfile, section_title: str, mute_settings: dict):
+    def mute_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, mute_settings, mute_formatter)
+
+
+def write_grenade_crosshair_section(outfile, section_title: str, grenade_xhair_settings: dict):
+    def grenade_crosshair_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, grenade_xhair_settings, grenade_crosshair_formatter)
+
+
+def write_background_section(outfile, section_title: str, background_settings: dict):
+    def background_formatter(key, value):
+        return f"{key} {value}"
+
+    write_section(outfile, section_title, background_settings, background_formatter)
+
+
+def write_hud_section(outfile, section_title: str, hud_settings: dict):
+    def hud_formatter(key, value):
+        return f"{key} {value}"
+
+    write_section(outfile, section_title, hud_settings, hud_formatter)
+
+
+def write_telemetry_section(outfile, section_title: str, telemetry_settings: dict):
+    def telemetry_formatter(key, value):
+        return f'{key} {value}'
+
+    write_section(outfile, section_title, telemetry_settings, telemetry_formatter)
+
+
 def generate_autoexec(output_file: str):
     # Load and merge bindings from vcfg files
-    merged_bindings = {}
+    all_bindings = {}
     for file in vcfg_files:
         if os.path.exists(file):
             print(f"[+] Loading bindings from: {file}")
             bindings = parse_vcfg_bindings(file)
-            merged_bindings.update(bindings)
+            all_bindings.update(bindings)
         else:
             print(f"[!] Bindings file not found: {file}")
     # Load and merge convars from vcfg files
-    crosshair_convars = {}
+    all_convars = {}
     for file in convar_files:
         if os.path.exists(file):
             print(f"[+] Loading convars from: {file}")
             convars = parse_vcfg_convars(file)
-            crosshair_convars.update(convars)
+            all_convars.update(convars)
         else:
             print(f"[!] Convar file not found: {file}")
     # Open autoconfig.cfg file to write config
     with open(output_file, 'w', encoding='utf-8') as out:
         # Unbinds hotkeys section
-        unbinds = filter_unbind_bindings(merged_bindings)
+        unbinds = filter_unbind_bindings(all_bindings)
         write_unbind_section(out, "Unbinds", unbinds)
         # Movement hotkeys section
-        movement = filter_movement_bindings(merged_bindings)
+        movement = filter_movement_bindings(all_bindings)
         write_bind_section(out, "Movements binds", movement)
         # Grenades hotkeys section
-        grenades = filter_grenade_bindings(merged_bindings)
+        grenades = filter_grenade_bindings(all_bindings)
         write_grenade_section(out, "Grenades binds", grenades)
         # Write Demo hotkeys section
-        demo_binds = filter_demo_bindings(merged_bindings)
+        demo_binds = filter_demo_bindings(all_bindings)
         write_bind_section(out, "Demo hotkeys", demo_binds)
         # Other hotkeys section
-        other_binds = filter_other_bindings(merged_bindings)
+        other_binds = filter_other_bindings(all_bindings)
         write_bind_section(out, "Other binds", other_binds)
         # Crosshair section
-        crosshair_settings = filter_crosshair_convars(crosshair_convars)
+        crosshair_settings = filter_crosshair_convars(all_convars)
         write_crosshair_section(out, "Crosshair", crosshair_settings)
+        # Grenade Crosshair Section
+        grenade_crosshair_settings = filter_grenade_crosshair_convars(all_convars)
+        write_grenade_crosshair_section(out, "Grenade Crosshair", grenade_crosshair_settings)
         # Mouse Section
-        mouse_settings = filter_mouse_convars(crosshair_convars)
+        mouse_settings = filter_mouse_convars(all_convars)
         write_mouse_section(out, "Mouse", mouse_settings)
         # Radar Section
-        radar_settings = filter_radar_convars(crosshair_convars)
+        radar_settings = filter_radar_convars(all_convars)
         write_radar_section(out, "Radar", radar_settings)
         # Viewmodel Section
-        viewmodel_settings = filter_viewmodel_convars(crosshair_convars)
-        write_viewmodel_section(out, "Viewmodel", viewmodel_settings)
+        sound_settings = filter_viewmodel_convars(all_convars)
+        write_viewmodel_section(out, "Viewmodel", sound_settings)
+        # Sound Section
+        sound_settings = filter_sound_convars(all_convars)
+        write_sound_section(out, "Sound Settings", sound_settings)
+        # HUD Section
+        hud_settings = filter_hud_convars(all_convars)
+        write_hud_section(out, "HUD", hud_settings)
+        # DamagePrediction Section
+        damage_prediction_settings = filter_damageprediction_convars(all_convars)
+        write_damage_prediction_section(out, "Damage Prediction", damage_prediction_settings)
+        # Mute Section
+        mute_settings = filter_mute_convars(all_convars)
+        write_mute_section(out, "Mute", mute_settings)
+        # Background Section
+        background_settings = filter_background_convars(all_convars)
+        write_background_section(out, "Background", background_settings)
+        # Telemetry Section
+        telemetry_settings = filter_telemetry_convars(all_convars)
+        write_telemetry_section(out, "Telemetry", telemetry_settings)
     print(f"[✔] autoexec.cfg created at: {output_file}")
 
 
