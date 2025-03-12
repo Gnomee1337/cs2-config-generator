@@ -69,6 +69,7 @@ def create_main_window():
     log_text = tk.Text(root, height=10, wrap='word')
     log_text.pack(pady=5, fill='x')
     log_text.config(state=tk.DISABLED)
-    sys.stdout.write = lambda message: write_to_text_widget(log_text, message)
+    if sys.stdout:
+        sys.stdout.write = lambda message: write_to_text_widget(log_text, message)
     
     return root
