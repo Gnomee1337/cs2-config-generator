@@ -29,10 +29,10 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed main.py
+        pyinstaller --onefile main.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: cs2-config-generator-exe
-        path: dist/cs2-config-generator.exe
+        path: dist/main.exe
