@@ -4,7 +4,6 @@ from filters.filters_cs2 import *
 from writers.writers_cs2 import *
 from utils.utils import write_to_text_widget
 
-
 def load_vcfg_files(file_paths, parse_function, log_text):
     data = {}
     for file in file_paths:
@@ -15,7 +14,6 @@ def load_vcfg_files(file_paths, parse_function, log_text):
         else:
             write_to_text_widget(log_text, f"[!] File not found: {file}\n")
     return data
-
 
 def write_sections(out, all_bindings, all_convars):
     sections = [
@@ -35,12 +33,10 @@ def write_sections(out, all_bindings, all_convars):
         ("Mute", filter_mute_convars(all_convars), write_mute_section),
         ("Background", filter_background_convars(all_convars), write_background_section),
         ("Telemetry", filter_telemetry_convars(all_convars), write_telemetry_section),
-        ("Other settings", filter_other_convars(all_convars, combine_other_settings(all_convars)),
-         write_other_settings_section),
+        ("Other settings", filter_other_convars(all_convars, combine_other_settings(all_convars)), write_other_settings_section),
     ]
     for section_name, data, write_function in sections:
         write_function(out, section_name, data)
-
 
 def generate_autoexec(output_file, vcfg_files, convar_files, log_text):
     all_bindings = load_vcfg_files(vcfg_files, parse_vcfg_bindings, log_text)

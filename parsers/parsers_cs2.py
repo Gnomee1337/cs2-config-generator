@@ -1,5 +1,3 @@
-# parsers_cs2.py
-
 # Constants for block types
 BINDINGS_BLOCK = "bindings"
 CONVARS_BLOCK = "convars"
@@ -18,7 +16,7 @@ def parse_vcfg(file_path, block_type):
     data = {}
     in_block = False
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             for line in file:
                 stripped_line = line.strip()
                 if stripped_line == f'"{block_type}"':
@@ -40,8 +38,8 @@ def parse_vcfg(file_path, block_type):
 
 
 def parse_vcfg_bindings(file_path):
-    return parse_vcfg(file_path, "bindings")
+    return parse_vcfg(file_path, BINDINGS_BLOCK)
 
 
 def parse_vcfg_convars(file_path):
-    return parse_vcfg(file_path, "convars")
+    return parse_vcfg(file_path, CONVARS_BLOCK)

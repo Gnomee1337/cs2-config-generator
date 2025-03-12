@@ -59,6 +59,7 @@ TELEMETRY_PREFIX = "cl_hud_telemetry_"
 DEMO_PREFIX = "demo_"
 UNBIND_VALUE = "<unbound>"
 
+# Steam-related constants
 STEAMID_LOOKUP = "https://steamid.io/lookup/"
 STEAM_USERDATA_PATH = r"C:\Program Files (x86)\Steam\userdata"
 STEAM_BASE_PATH_TEMPLATE = r"C:\Program Files (x86)\Steam\userdata\{my_id}\730"
