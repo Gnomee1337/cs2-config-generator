@@ -1,4 +1,5 @@
 import os
+from utils.utils import get_steam_path
 
 GRENADE_SLOT_MAP = {
     "slot6": "HE Grenade",
@@ -61,8 +62,9 @@ UNBIND_VALUE = "<unbound>"
 
 # Steam-related constants
 STEAMID_LOOKUP = "https://steamid.io/lookup/"
-STEAM_USERDATA_PATH = r"C:\Program Files (x86)\Steam\userdata"
-STEAM_BASE_PATH_TEMPLATE = r"C:\Program Files (x86)\Steam\userdata\{my_id}\730"
+STEAM_PATH = get_steam_path()
+STEAM_USERDATA_PATH = os.path.join(STEAM_PATH, "userdata")
+STEAM_BASE_PATH_TEMPLATE = os.path.join(STEAM_USERDATA_PATH, "{my_id}", "730")
 VCFG_FILES_TEMPLATE = [
     os.path.join(STEAM_BASE_PATH_TEMPLATE, "local", "cfg", "cs2_user_keys_0_slot0.vcfg"),
     os.path.join(STEAM_BASE_PATH_TEMPLATE, "remote", "cs2_user_keys.vcfg"),

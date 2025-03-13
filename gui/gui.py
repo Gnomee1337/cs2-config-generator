@@ -37,6 +37,13 @@ def create_main_window():
     root = tk.Tk()
     root.title("CS2 Config Generator")
     
+    # Set window icon
+    if hasattr(sys, '_MEIPASS'):
+        icon_path = os.path.join(sys._MEIPASS, 'assets', 'icon.ico')
+    else:
+        icon_path = os.path.join(os.path.dirname(__file__), '..', 'assets', 'icon.ico')
+    root.iconbitmap(icon_path)
+    
     steam_id_var = tk.StringVar()
     config_name_var = tk.StringVar()
     config_path_var = tk.StringVar()
@@ -55,7 +62,7 @@ def create_main_window():
     ttk.Entry(root, textvariable=config_name_var, width=50).pack(pady=5)
     
     # Config path selection
-    ttk.Label(root, text="Config Path:").pack(pady=5)
+    ttk.Label(root, text="Choose Config Save Path:").pack(pady=5)
     config_path_frame = ttk.Frame(root)
     config_path_frame.pack(pady=5, fill='x')
     ttk.Entry(config_path_frame, textvariable=config_path_var, width=50).pack(side=tk.LEFT, fill='x', expand=True)
