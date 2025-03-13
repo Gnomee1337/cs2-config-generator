@@ -2,6 +2,9 @@
 ### 🛠️ Automatically generate a clean `autoexec.cfg` file for CS2 - like it used to be in CS:GO.
 <img src="https://i.imgur.com/muVWuSd.jpeg"/>
 
+## 📦 Download:
+Release: [Version 1.1](https://github.com/Gnomee1337/cs2-config-generator/releases/tag/v1.1)
+
 ## 📖 Description
 CS2 Config Generator is a Python-based GUI application that helps users generate `autoexec.cfg` files for CS2.
 
@@ -68,9 +71,6 @@ m_pitch 0.022000
 .....
 
 ```
-
-## 📦 Release:
-Download [Version 1.1](https://github.com/Gnomee1337/cs2-config-generator/releases/tag/v1.1)
 
 ## 🧩 Requirements
 - Python 3.12
